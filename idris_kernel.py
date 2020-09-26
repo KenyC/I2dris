@@ -1,35 +1,46 @@
-__author__ = 'robbielynch'
-
 from IPython.kernel.zmq.kernelbase import Kernel
-from bfinterpreter.brainfuck import Brainy
+import subprocess
 
-class BrainfuckKernel(Kernel):
-    implementation = 'brainfuck'
-    implementation_version = '1.0'
-    language = 'brainfuck'
-    language_version = '0.1'
-    language_info = {'mimetype': 'text/plain', 'name': 'brainfuck'}
-    banner = "Brainfuck Kernel - it fucks with your brain"
+class IdrisKernel(Kernel):
+	implementation           = "i2dris"
+	implementation_version   = "0.0"
+	language                 = "Idris"
+	language_version         = "1.3"
+	banner                   = "i2dris 0.0"
 
-    def do_execute(self, code, silent, store_history=True, user_expressions=None,
-                   allow_stdin=False):
-        if not silent:
-            brainy = Brainy()
-            brainy.eval(code)
-            code_result = brainy.get_output()
-            stream_content = {'name': 'stdout', 'text': code_result}
-            self.send_response(self.iopub_socket, 'stream', stream_content)
+	language_info = {
+		"mimetype"       : "text/plain"
+		"file_extension" : "idr"
+		#"pygments_lexer" : todo
+	}
 
-        return {'status': 'ok',
-                # The base class increments the execution count
-                'execution_count': self.execution_count,
-                'payload': [],
-                'user_expressions': {},
-               }
+	def __init__(self, *args, **kwargs):
+		super(IdrisKernel, self).__init__(*args, **kwargs)
+		self.idris_server = subprocess.Popen([
+			"idris"
+		], stdin = subprocess.DEVNULL)
+
+
+	def do_execute(self,
+		           code, 
+		           silent, 
+		           store_history    = True,
+		           user_expressions = None,
+		           allow_stdin      = False):
+
+
+		return {
+			"status":           "ok",
+			"execution_count":  self.execution_count,
+			"payload":          [],
+			"user_expressions": {},
+		}
+
+	def do_shutdown(self):
+		print("I ended rather gracefully.")
+		self.idris_server.kill()
+
 
 if __name__ == '__main__':
-    from IPython.kernel.zmq.kernelapp import IPKernelApp
-    IPKernelApp.launch_instance(kernel_class=BrainfuckKernel)
-else:
-    from IPython.kernel.zmq.kernelapp import IPKernelApp
-    IPKernelApp.launch_instance(kernel_class=BrainfuckKernel)
+	from IPython.kernel.zmq.kernelapp import IPKernelApp
+	IPKernelApp.launch_instance(kernel_class = EchoKernel)

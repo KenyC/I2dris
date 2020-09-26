@@ -1,0 +1,3 @@
+000018(:protocol-version 1 0)
+000015(:return (:ok "") 0)
+00002a(:return (:error "No such variable a") 0)
