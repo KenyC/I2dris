@@ -1,5 +1,6 @@
 # CUSTOM IGNORE
 idris_source/
+kernel.json
 *.ibc
 
 

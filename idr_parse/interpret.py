@@ -69,13 +69,13 @@ class Return:
 		if arg.type != Type.Expr:
 			return None
 
-		if len(args.obj) < 2:
+		if len(arg.obj) < 2:
 			return None
 
-		if args.obj[0].type != Type.Symbol:
+		if arg.obj[0].type != Type.Symbol:
 			return None 
 
-		message = args.obj[1]
+		message = arg.obj[1]
 
 		if   message.type == Type.Expr:
 			return Return("ok")
