@@ -1,3 +1,8 @@
+# CUSTOM IGNORE
+idris_source/
+*.ibc
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
