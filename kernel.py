@@ -40,9 +40,9 @@ class IdrisKernel(Kernel):
 
 		for cmd_type, content in cmds:
 
-			self.idris_process.interpret_(IdrisKernel.int_to_cmd[cmd_type] + code)
-
+			self.idris_process.interpret_(IdrisKernel.int_to_cmd[cmd_type] + content)
 			output_results = silent or cmd_type == parse.CodeType.Undeclare
+
 
 			while True:
 				output = self.idris_process.receive_cmd()

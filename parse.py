@@ -29,13 +29,18 @@ def parse_code_into_codetypes(code):
 	def add_stack_to_return():
 		if stack_definitions and any(map(str.strip, stack_definitions)):
 			# find names defined 
+			to_undeclare = set()
 			for line in stack_definitions:
 				match = decl_regex.match(line)
 				if match:
-					to_return.append((
-						CodeType.Undeclare,
-						match.group(2)
-					))
+					identifier = match.group(2)
+
+					if identifier not in to_undeclare:
+						to_undeclare.add(identifier)
+						to_return.append((
+							CodeType.Undeclare,
+							identifier
+						))
 
 
 			to_return.append((
@@ -69,4 +74,14 @@ a : Bool
 a = True
 :l file
 1+1
+	"""
+	test_code2 = """
+add : Int'' -> Int'' -> Int''
+add n m a f = (n a f) . (m a f)
+
+prod : Int'' -> Int'' -> Int''
+prod n m a = (n a) . (m a)
+
+exponent : Int'' -> Int'' -> Int''
+exponent m n a = n (a -> a)  $ m a
 	"""
