@@ -37,6 +37,7 @@ class IdrisKernel(Kernel):
 
 		status = "ok" 
 		cmds = parse.parse_code_into_codetypes(code)
+		# self.output(cmds)
 
 		for cmd_type, content in cmds:
 
@@ -92,7 +93,6 @@ class IdrisKernel(Kernel):
 		# 				break
 
 
-
 		return {
 			"status":           status,
 			"execution_count":  self.execution_count,
@@ -105,9 +105,17 @@ class IdrisKernel(Kernel):
 			stream_content = {'name': 'stdout', 'text': str(message)}
 			self.send_response(self.iopub_socket, 'stream', stream_content)
 
-	def do_shutdown(self, *args, **kwargs):
-		print("I ended rather gracefully.")
+	def do_shutdown(self, restart):
 		self.idris_process.terminate()
+		try:
+			self.idris_process.wait(3)
+		except:
+			self.idris_process.kill()
+
+		return {
+			'status'  : 'ok', 
+			'restart' : restart
+		}
 
 
 if __name__ == '__main__':

@@ -19,6 +19,14 @@ class Pos:
 
 		return Pos(*(coord.obj for pos in positions for coord in pos.obj))
 
+	def __str__(self):
+		return "[{line_init}:{pos_init}-{line_end}:{pos_end}]".format(
+			line_init = self.line_init,
+			line_end  = self.line_end,
+			pos_init  = self.pos_init,
+			pos_end   = self.pos_end
+		)
+
 
 		
 
@@ -44,6 +52,13 @@ class Warning:
 
 		return Warning(expr.obj[1].obj)
 
+	def __str__(self):
+		return "Error ({file}{pos}) {error}".format(
+			file  = self.file,
+			pos   = self.pos,
+			error = self.error
+		)
+
 
 class WriteString:
 	"""docstring for WriteString"""
@@ -56,6 +71,9 @@ class WriteString:
 		if arg.type != Type.String:
 			return None
 		return WriteString(arg.obj)
+
+	def __str__(self):
+		return "Write " + self.to_write
 
 class Return:
 	"""docstring for WriteString"""
@@ -76,13 +94,18 @@ class Return:
 			return None 
 
 		message = arg.obj[1]
+		symbol  = arg.obj[0].obj
 
 		if   message.type == Type.Expr:
-			return Return("ok")
+			return Return(symbol)
 		elif message.type == Type.String:
-			return Return("error", message.obj)
+			return Return(symbol, message.obj)
 
-
+	def __str__(self):
+		return "Return {status}: {message}".format(
+			status  = self.status,
+			message = self.message
+		)
 		
 
 legible_commands = {

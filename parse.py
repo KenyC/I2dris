@@ -11,7 +11,8 @@ class CodeType(enum.IntEnum):
 	REPL_Cmd    = 2
 	Undeclare   = 3
 
-decl_regex = re.compile(r"^(\n|\s)*([a-zA-Z][a-zA-Z0-9_]*)\s((:)|(.*=))")
+decl_regex = re.compile(r"^(\n|\s)*([a-zA-Z][a-zA-Z0-9_']*)\s((:)|(.*=))")
+comment_line = re.compile(r"^(\s)*--")
 white_spaces = " \n\t\r"
 def parse_code_into_codetypes(code):
 	"""
@@ -51,6 +52,8 @@ def parse_code_into_codetypes(code):
 	for line in code.splitlines():
 		if not line:
 			stack_definitions.append(line) # Adding empty lines in case line numbering one day becomes relevant
+		elif comment_line.match(line):
+			continue
 		elif line[0] == ":":
 			add_stack_to_return()
 			to_return.append((CodeType.REPL_Cmd, line))

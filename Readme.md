@@ -22,5 +22,9 @@ jupyter qtconsole --kernel i2dris
 jupyter notebook
 ```
 
+# Known issues
+
+``where`` statements seems to be ignored by the ":let" command which the kernel uses to evaluate statements. In the future, I hope this can be rectified by making using of a home-made version of Idris's IDE mode.
+
 
 
