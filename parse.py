@@ -3,13 +3,15 @@ Shallow Idris Parse to determine declarations from commands or expressions
 """
 
 import enum
+import re
 
 class CodeType(enum.IntEnum):
 	Declaration = 0
 	Expression  = 1
 	REPL_Cmd    = 2
+	Undeclare   = 3
 
-
+decl_regex = re.compile(r"^(\n|\s)*([a-zA-Z][a-zA-Z0-9_]*)\s((:)|(.*=))")
 white_spaces = " \n\t\r"
 def parse_code_into_codetypes(code):
 	"""
@@ -24,8 +26,18 @@ def parse_code_into_codetypes(code):
 	stack_definitions = []
 	to_return         = []
 
-	def ship_stack():
+	def add_stack_to_return():
 		if stack_definitions and any(map(str.strip, stack_definitions)):
+			# find names defined 
+			for line in stack_definitions:
+				match = decl_regex.match(line)
+				if match:
+					to_return.append((
+						CodeType.Undeclare,
+						match.group(2)
+					))
+
+
 			to_return.append((
 				CodeType.Declaration, 
 				"\n".join(stack_definitions)
@@ -35,17 +47,17 @@ def parse_code_into_codetypes(code):
 		if not line:
 			stack_definitions.append(line) # Adding empty lines in case line numbering one day becomes relevant
 		elif line[0] == ":":
-			ship_stack()
+			add_stack_to_return()
 			to_return.append((CodeType.REPL_Cmd, line))
 		elif " : " in line or " = " in line or not line:
 			stack_definitions.append(line)
 		elif line[0] not in white_spaces:
-			ship_stack()
+			add_stack_to_return()
 			to_return.append((CodeType.Expression, line))
 		else:
 			stack_definitions.append(line)
 
-	ship_stack()
+	add_stack_to_return()
 	return to_return
 
 

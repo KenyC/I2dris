@@ -26,7 +26,7 @@ class IdrisKernel(Kernel):
 		super(IdrisKernel, self).__init__(*args, **kwargs)
 
 
-	int_to_cmd = [":let\n", "", ""]
+	int_to_cmd = [":let\n", "", "", ":unlet "]
 	def do_execute(self,
 		           code, 
 		           silent, 
@@ -42,6 +42,7 @@ class IdrisKernel(Kernel):
 
 			self.idris_process.interpret_(IdrisKernel.int_to_cmd[cmd_type] + code)
 
+			output_results = silent or cmd_type == parse.CodeType.Undeclare
 
 			while True:
 				output = self.idris_process.receive_cmd()
@@ -50,22 +51,22 @@ class IdrisKernel(Kernel):
 				if interpreted_result is not None:
 
 					if isinstance(interpreted_result, interpret.WriteString):
-						self.output(interpreted_result.to_write)
+						self.output(interpreted_result.to_write, output_results)
 
 					elif isinstance(interpreted_result, interpret.Warning):
-						self.output(interpreted_result.error)
+						self.output(interpreted_result.error, output_results)
 
 					elif isinstance(interpreted_result, interpret.Return):
 						status = interpreted_result.status
 						if interpreted_result.message is not None:
-							self.output(interpreted_result.message)
+							self.output(interpreted_result.message, output_results)
 
 						break
 					else:
 						status = "error"
 						break
-
-			if status == "error":
+			# Ignore errors due to undeclare inexisting variables
+			if status == "error" and cmd_type != parse.CodeType.Undeclare:
 				break
 
 
